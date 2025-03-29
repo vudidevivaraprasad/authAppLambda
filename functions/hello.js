@@ -1,5 +1,5 @@
 const { ScanCommand } = require('@aws-sdk/lib-dynamodb')
-const DBConnection = require('./services/dbservice')
+const DBConnection = require('/opt/nodejs/services/dbservice')
 const {CreateTableCommand}  = require('@aws-sdk/client-dynamodb')
 // exports.hellolambda  = async (event,context) => {
 //     // console.log("event",event);

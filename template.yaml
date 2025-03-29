@@ -4,7 +4,19 @@ Transform: AWS::Serverless-2016-10-31
 Globals:
   Function:
     Timeout: 30
+    
 Resources:
+  ModulesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: sam-layer-dependencies
+      Description: layer with some dependencies
+      LicenseInfo: 'Available under the MIT license.'
+      ContentUri: ./layers
+      CompatibleRuntimes:
+        - nodejs18.x
+    Metadata:
+      BuildMethod: nodejs18.x
   AuthTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -21,13 +33,15 @@ Resources:
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
+      CodeUri: functions
       Handler: register.registerlambda
       Runtime: nodejs18.x
       MemorySize: 128
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
       Events:
         ApiEvent:
           Type: Api
@@ -37,13 +51,15 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
+      CodeUri: functions
       Handler: login.loginlambda
       Runtime: nodejs18.x
       MemorySize: 128
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
       Events:
         ApiEvent:
           Type: Api
@@ -53,13 +69,15 @@ Resources:
   VerificationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
+      CodeUri: functions
       Handler: verification.verificationlambda
       Runtime: nodejs18.x
       MemorySize: 128
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
       Events:
         ApiEvent:
           Type: Api
@@ -69,18 +87,38 @@ Resources:
   allusers:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: src/
+      CodeUri: functions
       Handler: hello.allusers
       Runtime: nodejs18.x
       MemorySize: 128
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
       Events:
         ApiEvent:
           Type: Api
           Properties:
             Path: /users
+            Method: get
+  createTable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: hello.hellolambda3
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /createtable
             Method: get
 
 Outputs:

@@ -1,6 +1,6 @@
-const DBConnection = require('./services/dbservice')
-const encryption = require('./utilities/bcrypt')
-const jwt = require('./utilities/jwtGenerator')
+const DBConnection = require('/opt/nodejs/services/dbservice')
+const encryption = require('/opt/nodejs/utilities/bcrypt')
+const jwt = require('/opt/nodejs/utilities/jwtGenerator')
 const { PutCommand,GetCommand} = require('@aws-sdk/lib-dynamodb')
 exports.registerlambda  = async (event,context) => {
     let {mail,password} = JSON.parse(event.body);

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const DBConnection = require('./services/dbservice')
+const DBConnection = require('/opt/nodejs/services/dbservice')
 const {GetCommand,UpdateCommand} = require('@aws-sdk/lib-dynamodb')
 exports.verificationlambda = async (event) => {
     const {token} = event.queryStringParameters;

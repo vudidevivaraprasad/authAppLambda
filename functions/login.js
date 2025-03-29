@@ -1,6 +1,6 @@
 const bcryption = require('bcryptjs')
-const DBConnection = require('./services/dbservice')
-const jwt = require('./utilities/jwtGenerator')
+const DBConnection = require('/opt/nodejs/services/dbservice')
+const jwt = require('/opt/nodejs/utilities/jwtGenerator')
 const {GetCommand} = require('@aws-sdk/lib-dynamodb')
 exports.loginlambda = async (event,context) => {
     const {mail,password} = JSON.parse(event.body);
