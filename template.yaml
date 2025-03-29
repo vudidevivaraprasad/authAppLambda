@@ -102,6 +102,24 @@ Resources:
           Properties:
             Path: /users
             Method: get
+  forgetPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: forgetpassword.forgetpasswordlambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /forgetpassword
+            Method: get
   createTable:
     Type: AWS::Serverless::Function
     Properties:
