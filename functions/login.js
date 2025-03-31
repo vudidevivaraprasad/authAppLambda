@@ -12,7 +12,7 @@ exports.loginlambda = async (event,context) => {
     
     const result = await DBConnection.send(
         new GetCommand({
-            TableName:'AuthTable',
+            TableName:process.env.TableName,
             Key:{mail}
         })
     )

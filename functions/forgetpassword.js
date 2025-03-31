@@ -10,7 +10,7 @@ exports.forgetpasswordlambda = async (event) => {
         console.log("user",user)
         const userfound = await DBConnection.send(
             new GetCommand({
-                    TableName:'AuthTable',
+                    TableName:process.env.TableName,
                     Key:{mail:user.mail}
                 })
             )
@@ -21,7 +21,7 @@ exports.forgetpasswordlambda = async (event) => {
             console.log('encryptedpassword',encryptedpassword)
             const result  = await DBConnection.send(
                 new UpdateCommand({
-                    TableName:'AuthTable',
+                    TableName:process.env.TableName,
                     Key:{mail:userfound.Item.mail},
                     UpdateExpression:"SET password = :newpassword",
                     ExpressionAttributeValues:{

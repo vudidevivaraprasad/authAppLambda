@@ -12,7 +12,7 @@ exports.registerlambda  = async (event,context) => {
 
     const userExist = await DBConnection.send(
         new GetCommand({
-            TableName:'AuthTable',
+            TableName:process.env.TableName,
             Key:{mail}
             })
         )
@@ -25,7 +25,7 @@ exports.registerlambda  = async (event,context) => {
     password = await encryption(password)
     await DBConnection.send(
         new PutCommand({
-            TableName:'AuthTable',
+            TableName:process.env.TableName,
             Item:{mail,password,verified:false}
         })
     )

@@ -1,8 +1,8 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "example"
+stack_name = "AuthApp"
 resolve_s3 = true
-s3_prefix = "example"
+s3_prefix = "AuthApp"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"

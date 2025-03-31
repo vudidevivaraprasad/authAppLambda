@@ -4,6 +4,9 @@ Transform: AWS::Serverless-2016-10-31
 Globals:
   Function:
     Timeout: 30
+    Environment:
+      Variables: 
+        TableName : !Ref AuthTable
     
 Resources:
   ModulesLayer:
@@ -20,7 +23,7 @@ Resources:
   AuthTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: AuthTable
+      TableName: "AuthTable"
       AttributeDefinitions:
         - AttributeName: mail
           AttributeType: S
@@ -119,7 +122,7 @@ Resources:
           Type: Api
           Properties:
             Path: /forgetpassword
-            Method: get
+            Method: post
   createTable:
     Type: AWS::Serverless::Function
     Properties:

@@ -9,7 +9,7 @@ exports.verificationlambda = async (event) => {
         console.log("mail",verifiedtoken.mail)
         const user = await DBConnection.send(
             new GetCommand({
-                TableName:'AuthTable',
+                TableName:process.env.TableName,
                 Key:{mail:verifiedtoken.mail}
             })
         )
@@ -23,7 +23,7 @@ exports.verificationlambda = async (event) => {
                 }
             const result = await DBConnection.send(
                 new UpdateCommand({
-                    TableName:'AuthTable',
+                    TableName:process.env.TableName,
                     Key:{mail:user.Item.mail},
                     UpdateExpression: "SET verified = :v",
                     ExpressionAttributeValues: {

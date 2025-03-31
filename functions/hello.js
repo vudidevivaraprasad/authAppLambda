@@ -38,7 +38,7 @@ const {CreateTableCommand}  = require('@aws-sdk/client-dynamodb')
 exports.hellolambda3 = async (event,context) => {
     const result = await DBConnection.send(
         new CreateTableCommand({
-            TableName:'AuthTable',
+            TableName:process.env.TableName,
             AttributeDefinitions:[
                 {
                     AttributeName:'mail',
@@ -66,7 +66,7 @@ exports.hellolambda3 = async (event,context) => {
 exports.allusers = async (event) => {
     const users = await DBConnection.send(
         new ScanCommand({
-            TableName:'AuthTable'
+            TableName:process.env.TableName
         })
     )
     console.log("users",users)
