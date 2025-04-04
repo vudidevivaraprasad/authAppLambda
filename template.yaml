@@ -15,6 +15,16 @@ Globals:
         TableName : !Ref AuthTable
     
 Resources:
+  CorsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: "CorsApi"
+      StageName: "Prod"
+      Cors: 
+        AllowOrigin: "'http://localhost:4200'"
+        AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowCredentials: true
   ModulesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -55,6 +65,7 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref CorsApi
             Path: /register
             Method: post
   LoginFunction:
@@ -73,6 +84,7 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref CorsApi
             Path: /login
             Method: post
   VerificationFunction:
@@ -91,6 +103,7 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref CorsApi
             Path: /verification
             Method: get
   allusers:
@@ -109,6 +122,7 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref CorsApi
             Path: /users
             Method: get
   forgetPasswordFunction:
@@ -127,6 +141,7 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref CorsApi
             Path: /forgetpassword
             Method: post
   LogoutFunction:
@@ -145,6 +160,7 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref CorsApi
             Path: /logout
             Method: get
   createTable:

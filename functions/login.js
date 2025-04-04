@@ -7,28 +7,9 @@ exports.loginlambda = async (event,context) => {
 
         const {mail,password} = JSON.parse(event.body);
     
-        if (event.httpMethod === "OPTIONS") {
-            return {
-              statusCode: 200,
-              headers: {
-                "Access-Control-Allow-Origin": "http://localhost:4200", // Allow Angular frontend
-                "Access-Control-Allow-Credentials": "true", // Required for cookies
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization",
-              },
-              body: ""
-            };
-          }
-    
-        const responseHeaders = {
-            "Access-Control-Allow-Origin": "http://localhost:4200",
-            "Access-Control-Allow-Credentials": "true",
-        };
-    
         if(!mail || !password)
             return {
                 statusCode:200,
-                headers:responseHeaders,
                 body:JSON.stringify({message:'mail and password is required'})
             }
         
@@ -42,14 +23,12 @@ exports.loginlambda = async (event,context) => {
         if(!result.Item)
             return {
                 statusCode:200,
-                headers:responseHeaders,
                 body:JSON.stringify({message:'mail or password is incorrect'})
             }
         
         if(!result.Item.verified)
             return {
                 statusCode:200,
-                headers:responseHeaders,
                 body:JSON.stringify({message:'user is not verified'})
             }
         
@@ -59,9 +38,7 @@ exports.loginlambda = async (event,context) => {
             return {
                 statusCode:200,
                 headers: {
-                    "Set-Cookie": `authToken=${token}; Path=/; Max-Age=604800; HttpOnly; Secure; SameSite=None;`,
-                    "Access-Control-Allow-Origin": "http://localhost:4200",
-                    "Access-Control-Allow-Credentials": "true",
+                    "Set-Cookie": `authToken=${token}; Path=/; Max-Age=604800; HttpOnly; Secure; SameSite=None;`
                 },
                 body:JSON.stringify({message:'login successful'})
             }
@@ -69,17 +46,12 @@ exports.loginlambda = async (event,context) => {
     
         return {
             statusCode:200,
-            headers:responseHeaders,
             body:JSON.stringify({message:'mail or password is incorrect'})
         }
     }
     catch{
         return {
             statusCode:200,
-            headers:{
-                "Access-Control-Allow-Origin": "http://localhost:4200",
-                "Access-Control-Allow-Credentials": "true",
-            },
             body: JSON.stringify({message:'an unexpected error occured'})
         }
     }

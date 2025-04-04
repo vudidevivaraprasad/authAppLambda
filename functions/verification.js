@@ -14,8 +14,6 @@ exports.verificationlambda = async (event) => {
             })
         )
         if(user){
-            // console.log(user)
-            // console.log(user.Item)
             if(user.Item.verified)
                 return {
                     statusCode:200,
@@ -34,7 +32,7 @@ exports.verificationlambda = async (event) => {
             )
             return {
                 statusCode:200,
-                body:JSON.stringify({message:'verified',data:result})
+                body:JSON.stringify({message:'verified'})
             }
         }
         else
