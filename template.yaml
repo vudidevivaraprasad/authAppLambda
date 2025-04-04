@@ -2,6 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Globals:
+  Api:
+    Cors:
+      AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
+      AllowHeaders: "'Content-Type,Authorization'"
+      AllowOrigin: "'http://localhost:4200'"
+      AllowCredentials: true
   Function:
     Timeout: 30
     Environment:
@@ -123,6 +129,24 @@ Resources:
           Properties:
             Path: /forgetpassword
             Method: post
+  LogoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: logout.LogoutLambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /logout
+            Method: get
   createTable:
     Type: AWS::Serverless::Function
     Properties:

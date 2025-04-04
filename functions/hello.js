@@ -1,40 +1,8 @@
-const { ScanCommand } = require('@aws-sdk/lib-dynamodb')
+const { ScanCommand,GetCommand } = require('@aws-sdk/lib-dynamodb')
 const DBConnection = require('/opt/nodejs/services/dbservice')
 const {CreateTableCommand}  = require('@aws-sdk/client-dynamodb')
-// exports.hellolambda  = async (event,context) => {
-//     // console.log("event",event);
-//     // console.log("context", context);
-//     let {mail,password} = JSON.parse(event.body);
-//     password = await encryption(password)
-//     console.log("password",password,"type",typeof(password))
-//     await DBConnection.send(
-//         new PutCommand({
-//             TableName:'AuthTable',
-//             Item:{mail,password,verified:false}
-//         })
-//     ).then(data => {
-//         console.log('data',data)
-//     })
-//     return {
-//         statusCode:200,
-//         body:JSON.stringify({message:"user registered"})
-//     }
-    
-// }
-// exports.hellolambda2 = async (event,context) => {
-//     const {mail} = JSON.parse(event.body);
-//     const result = await DBConnection.send(
-//         new GetCommand({
-//             TableName:'AuthTable',
-//             Key:{mail}
-//         })
-//     )
-//     console.log('result',result)
-//     return {
-//         statusCode:200,
-//         body:JSON.stringify(result.Item)
-//     }
-// }
+const jwt = require('jsonwebtoken')
+
 exports.hellolambda3 = async (event,context) => {
     const result = await DBConnection.send(
         new CreateTableCommand({
@@ -64,14 +32,64 @@ exports.hellolambda3 = async (event,context) => {
     }
 }
 exports.allusers = async (event) => {
-    const users = await DBConnection.send(
-        new ScanCommand({
-            TableName:process.env.TableName
-        })
-    )
-    console.log("users",users)
-    return {
-        statusCode:200,
-        body:JSON.stringify({data:users.Items})
+    if (event.httpMethod === "OPTIONS") {
+        console.log('inside options')
+        return {
+          statusCode: 200,
+          headers: {
+            "Access-Control-Allow-Origin": "http://localhost:4200", // Allow Angular frontend
+            "Access-Control-Allow-Credentials": "true", // Required for cookies
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+          body: ""
+        };
     }
+    const responseHeaders = {
+        "Access-Control-Allow-Origin": "http://localhost:4200",
+        "Access-Control-Allow-Credentials": "true",
+    };
+    // console.log('headers',event.headers)
+    const cookie = event.headers?.Cookie
+    // console.log('authToken',cookie)
+    if(!cookie){
+        return {
+            statusCode:200,
+            headers:responseHeaders,
+            body:JSON.stringify({message:'unauthorized access'})
+        }
+    }
+    const token = cookie.split('=')[0] == 'authToken' ? cookie.split('=')[1] : false;
+    if(token){
+        const verification = await jwt.verify(token,"EnCoDeD-SeCrEt-KeY-256")
+        // console.log('verification',verification)
+        // console.log('user',verification?.mail)
+        if(verification?.mail){
+            const user = await DBConnection.send(
+                            new GetCommand({
+                                TableName: process.env.TableName,
+                                Key:{mail:verification.mail}
+                            })
+                        )
+            if(user.Item){
+                const users = await DBConnection.send(
+                    new ScanCommand({
+                        TableName:process.env.TableName
+                    })
+                )
+                // console.log("users",users)
+                return {
+                    statusCode:200,
+                    headers:responseHeaders,
+                    body:JSON.stringify({data:users.Items})
+                }
+            }
+        }
+    }
+
+    return {
+            statusCode:200,
+            headers:responseHeaders,
+            body:JSON.stringify({message:'unauthorized access'})
+        }
 }
