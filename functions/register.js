@@ -4,7 +4,11 @@ const jwt = require('/opt/nodejs/utilities/jwtGenerator')
 const { PutCommand,GetCommand} = require('@aws-sdk/lib-dynamodb')
 exports.registerlambda  = async (event,context) => {
     try{
-        let {mail,password} = JSON.parse(event.body);
+        let {mail,password,admin} = JSON.parse(event.body);
+        console.log(event.body)
+        if(admin){
+            console.log('admin user')
+        }
         if(!mail || !password)
             return {
                 statusCode:200,
@@ -27,7 +31,7 @@ exports.registerlambda  = async (event,context) => {
         await DBConnection.send(
             new PutCommand({
                 TableName:process.env.TableName,
-                Item:{mail,password,verified:false}
+                Item:{mail,password,verified:false,admin}
             })
         )
         const token = await jwt({mail,verified:false})

@@ -4,6 +4,8 @@ exports.LogoutLambda = async (event) => {
           statusCode:200,
           headers: {
               "Set-Cookie": "authToken=; Path=/; Max-Age=0; HttpOnly; SameSite=None; Secure",
+              // "Set-Cookie": `authToken=; Path=/; Max-Age=604800; HttpOnly;`
+
           },
           body: JSON.stringify({message:'logout successful'})
       }

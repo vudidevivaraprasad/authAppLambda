@@ -39,6 +39,7 @@ exports.loginlambda = async (event,context) => {
                 statusCode:200,
                 headers: {
                     "Set-Cookie": `authToken=${token}; Path=/; Max-Age=604800; HttpOnly; Secure; SameSite=None;`
+                    // "Set-Cookie": `authToken=${token}; Path=/; Max-Age=604800; HttpOnly;`
                 },
                 body:JSON.stringify({message:'login successful'})
             }

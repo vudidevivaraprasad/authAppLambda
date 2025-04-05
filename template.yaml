@@ -6,8 +6,8 @@ Globals:
     Cors:
       AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
       AllowHeaders: "'Content-Type,Authorization'"
-      AllowOrigin: "'http://localhost:4200'"
-      AllowCredentials: true
+      AllowOrigin: "'http://127.0.0.1:4200'"
+      AllowCredentials: "'true'"
   Function:
     Timeout: 30
     Environment:
@@ -21,10 +21,10 @@ Resources:
       Name: "CorsApi"
       StageName: "Prod"
       Cors: 
-        AllowOrigin: "'http://localhost:4200'"
+        AllowOrigin: "'http://127.0.0.1:4200'"
         AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
         AllowHeaders: "'Content-Type,Authorization'"
-        AllowCredentials: true
+        AllowCredentials: "'true'"
   ModulesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -181,7 +181,25 @@ Resources:
           Properties:
             Path: /createtable
             Method: get
-
+  userVerification:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: userVerification.UserVerificationLambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /userverification
+            Method: get
 Outputs:
   ApiGatewayEndpoint:
     Description: "API Gateway endpoint URL"
