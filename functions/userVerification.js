@@ -1,14 +1,20 @@
 const jwt = require('jsonwebtoken')
 const DBConnection = require('/opt/nodejs/services/dbservice')
+const corsheaders = require('/opt/nodejs/utilities/CorsHeaders')
 const {GetCommand} = require('@aws-sdk/lib-dynamodb')
 exports.UserVerificationLambda = async (event) => {
-    console.log('request',event.queryStringParameters)
     const {token} = event.queryStringParameters
+    if (event.httpMethod === 'OPTIONS'){
+        return corsheaders({
+            statusCode: 200,
+            body: ''
+        })
+    }
     if(!token)
-        return {
+        return corsheaders({
             statusCode: 200,
             body: JSON.stringify({message:'unauthorized user'})
-        }
+        })
 
     const user = jwt.verify(token,"EnCoDeD-SeCrEt-KeY-256")
     if(user){
@@ -20,27 +26,27 @@ exports.UserVerificationLambda = async (event) => {
         )
         if(result.Item){
             if(result.Item.admin)
-                return {
+                return corsheaders({
                     statusCode:200,
                     body:JSON.stringify({message:'admin'})
-                }
+                })
 
             else if(result.Item.verified){
-                return {
+                return corsheaders({
                     statusCode:200,
                     body:JSON.stringify({message:'regular'})
-                }
+                })
             }
             else{
-                return {
+                return corsheaders({
                     statusCode:200,
                     body:JSON.stringify({message:'unverified'})
-                }
+                })
             }
         }
     }
-    return {
+    return corsheaders({
         statusCode:200,
         body:JSON.stringify({message:'unauthorized'})
-    }
+    })
 }

@@ -1,20 +1,19 @@
+const corsheaders = require('/opt/nodejs/utilities/CorsHeaders')
 exports.LogoutLambda = async (event) => {
   try{
-      return {
+      return corsheaders({
           statusCode:200,
           headers: {
               "Set-Cookie": "authToken=; Path=/; Max-Age=0; HttpOnly; SameSite=None; Secure",
-              // "Set-Cookie": `authToken=; Path=/; Max-Age=604800; HttpOnly;`
-
           },
           body: JSON.stringify({message:'logout successful'})
-      }
+      })
   }
   catch{
-    return {
+    return corsheaders({
       statusCode:200,
       body: JSON.stringify({message:'an unexpected error occured'})
-    }
+    })
   }
     
 }

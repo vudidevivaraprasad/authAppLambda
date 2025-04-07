@@ -1,8 +1,15 @@
 const jwt = require('jsonwebtoken')
 const DBConnection = require('/opt/nodejs/services/dbservice')
+const corsheaders = require('/opt/nodejs/utilities/CorsHeaders')
 const {GetCommand,UpdateCommand} = require('@aws-sdk/lib-dynamodb')
 exports.verificationlambda = async (event) => {
     const {token} = event.queryStringParameters;
+    if (event.httpMethod === 'OPTIONS'){
+        return corsheaders({
+            statusCode: 200,
+            body: ''
+        })
+    }
     try{
         const verifiedtoken = jwt.verify(token,"EnCoDeD-SeCrEt-KeY-256")
         console.log("verificationtoken",verifiedtoken)
@@ -15,10 +22,10 @@ exports.verificationlambda = async (event) => {
         )
         if(user){
             if(user.Item.verified)
-                return {
+                return corsheaders({
                     statusCode:200,
                     body:JSON.stringify({message:'already verified'})
-                }
+                })
             const result = await DBConnection.send(
                 new UpdateCommand({
                     TableName:process.env.TableName,
@@ -30,21 +37,21 @@ exports.verificationlambda = async (event) => {
                     ReturnValues: "UPDATED_NEW"
                 })
             )
-            return {
+            return corsheaders({
                 statusCode:200,
                 body:JSON.stringify({message:'verified'})
-            }
+            })
         }
         else
-            return {
+            return corsheaders({
                 statusCode:200,
                 body:JSON.stringify({message:'invalid token'})
-            }
+            })
     }
     catch(error){
-        return {
+        return corsheaders({
             statusCode:200,
             body:JSON.stringify({message:'token expired'})
-        }
+        })
     }
 }

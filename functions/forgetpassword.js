@@ -1,9 +1,16 @@
 const DBConnection = require('/opt/nodejs/services/dbservice')
 const encryption = require('/opt/nodejs/utilities/bcrypt')
+const corsheaders = require('/opt/nodejs/utilities/CorsHeaders')
 const jwt = require('jsonwebtoken')
 const {GetCommand,UpdateCommand}  = require('@aws-sdk/lib-dynamodb')
 exports.forgetpasswordlambda = async (event) => {
     try{
+        if (event.httpMethod === 'OPTIONS'){
+            return corsheaders({
+                statusCode: 200,
+                body: ''
+            })
+        }
         let {newpassword,token} = JSON.parse(event.body)
         const user = jwt.verify(token,"EnCoDeD-SeCrEt-KeY-256")
         const userfound = await DBConnection.send(
@@ -24,21 +31,21 @@ exports.forgetpasswordlambda = async (event) => {
                     }
                 })
             )
-            return {
+            return corsheaders({
                 statusCode:200,
                 body:JSON.stringify({message:'password updated successfully'})
-            }
+            })
         }
-        return {
+        return corsheaders({
             statusCode:200,
             body:JSON.stringify({message:'unauthorized user'})
-        }
+        })
     }
     catch{
-        return {
+        return corsheaders({
             statusCode:200,
             body:JSON.stringify({message:'unauthorized user'})
-        }
+        })
     }
 
 }

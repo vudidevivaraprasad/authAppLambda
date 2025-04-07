@@ -13,6 +13,7 @@ Globals:
     Environment:
       Variables: 
         TableName : !Ref AuthTable
+        UserDetailsTable: !Ref UserDetailsTable
     
 Resources:
   CorsApi:
@@ -49,6 +50,19 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+  UserDetailsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "UserDetailsTable"
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -59,6 +73,8 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
       Layers:
         - !Ref ModulesLayer
       Events:
@@ -78,6 +94,8 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
       Layers:
         - !Ref ModulesLayer
       Events:
@@ -97,6 +115,8 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
       Layers:
         - !Ref ModulesLayer
       Events:
@@ -124,6 +144,27 @@ Resources:
           Properties:
             RestApiId: !Ref CorsApi
             Path: /users
+            Method: get
+  allusersdetails:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: hello.alluserdetails
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /usersdetails
             Method: get
   forgetPasswordFunction:
     Type: AWS::Serverless::Function
@@ -163,25 +204,7 @@ Resources:
             RestApiId: !Ref CorsApi
             Path: /logout
             Method: get
-  createTable:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions
-      Handler: hello.hellolambda3
-      Runtime: nodejs18.x
-      MemorySize: 128
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuthTable
-      Layers:
-        - !Ref ModulesLayer
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /createtable
-            Method: get
-  userVerification:
+  userVerificationFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions
@@ -200,7 +223,152 @@ Resources:
             RestApiId: !Ref CorsApi
             Path: /userverification
             Method: get
-Outputs:
-  ApiGatewayEndpoint:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/custom"
+  CartFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: cart.CartLambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        UpdateCart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /cart
+            Method: post
+        GetCart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /cart
+            Method: get
+  WishlistFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: wishlist.WishlistLambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        UpdateCart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /wishlist
+            Method: post
+        GetCart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /wishlist
+            Method: get
+  OrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: orders.OrdersLambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        UpdateCart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /orders
+            Method: post
+        GetCart:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /orders
+            Method: get
+  AddressFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: address.AddressLambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        PostAddressEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /address
+            Method: post
+        GetAddressEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /address
+            Method: get
+  createAuthTableFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: hello.hellolambda3
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /createtable
+            Method: get
+  createUserDetailsTableFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions
+      Handler: hello.hellolambda4
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /createuserdetailstable
+            Method: get
+
+# Outputs:
+#   ApiGatewayEndpoint:
+#     Description: "API Gateway endpoint URL"
+#     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/custom"
