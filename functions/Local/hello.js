@@ -146,3 +146,32 @@ exports.allusers = async (event) => {
             body:JSON.stringify({message:'unauthorized access'})
         })
 }
+
+exports.hellolambda = async (event) => {
+    const result = await DBConnection.send(
+        new CreateTableCommand({
+            TableName:process.env.TableName,
+            AttributeDefinitions:[
+                {
+                    AttributeName:'id',
+                    AttributeType:'S'
+                }
+            ],
+            KeySchema:[
+                {
+                    AttributeName:'id',
+                    KeyType:'HASH'
+                }
+            ],
+            ProvisionedThroughput:{
+                ReadCapacityUnits:1,
+                WriteCapacityUnits:1
+            }
+        })
+    )
+    console.log('result',result)
+    return {
+        statusCode:200,
+        body:JSON.stringify({message:"table created"})
+    }
+}

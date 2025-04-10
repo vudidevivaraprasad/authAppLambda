@@ -6,26 +6,34 @@ Globals:
     Cors:
       AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
       AllowHeaders: "'Content-Type,Authorization'"
-      AllowOrigin: "'http://127.0.0.1:4200'"
-      AllowCredentials: "'true'"
+      # AllowOrigin: "'http://127.0.0.1:4200'"
+      AllowOrigin: "'https://ecommers-frontend-nine.vercel.app'"
+      AllowCredentials: true
   Function:
     Timeout: 30
     Environment:
       Variables: 
         TableName : !Ref AuthTable
         UserDetailsTable: !Ref UserDetailsTable
+        ProductsTable : !Ref ProductsTable
+        # API_BASE_URL: !Sub https://${CorsApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
+        # API_BASE_URL: 'http://127.0.0.1:3000'
     
 Resources:
+  #Cors Api
   CorsApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: "CorsApi"
       StageName: "Prod"
       Cors: 
-        AllowOrigin: "'http://127.0.0.1:4200'"
+        # AllowOrigin: "'http://127.0.0.1:4200'"
+        AllowOrigin: "'https://ecommers-frontend-nine.vercel.app'"
         AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
         AllowHeaders: "'Content-Type,Authorization'"
-        AllowCredentials: "'true'"
+        AllowCredentials: true
+
+  # Modules Layer
   ModulesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -37,6 +45,8 @@ Resources:
         - nodejs18.x
     Metadata:
       BuildMethod: nodejs18.x
+
+  # Tables
   AuthTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -63,10 +73,25 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+  ProductsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: "ProductsTable"
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  
+  #Auth Functions
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Auth
       Handler: register.registerlambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -87,7 +112,7 @@ Resources:
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Auth
       Handler: login.loginlambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -108,7 +133,7 @@ Resources:
   VerificationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Auth
       Handler: verification.verificationlambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -126,50 +151,10 @@ Resources:
             RestApiId: !Ref CorsApi
             Path: /verification
             Method: get
-  allusers:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions
-      Handler: hello.allusers
-      Runtime: nodejs18.x
-      MemorySize: 128
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuthTable
-      Layers:
-        - !Ref ModulesLayer
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref CorsApi
-            Path: /users
-            Method: get
-  allusersdetails:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions
-      Handler: hello.alluserdetails
-      Runtime: nodejs18.x
-      MemorySize: 128
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuthTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserDetailsTable
-      Layers:
-        - !Ref ModulesLayer
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref CorsApi
-            Path: /usersdetails
-            Method: get
   forgetPasswordFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Auth
       Handler: forgetpassword.forgetpasswordlambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -188,7 +173,7 @@ Resources:
   LogoutFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Auth
       Handler: logout.LogoutLambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -204,10 +189,12 @@ Resources:
             RestApiId: !Ref CorsApi
             Path: /logout
             Method: get
+  
+  #User Verification
   userVerificationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Verification
       Handler: userVerification.UserVerificationLambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -223,10 +210,12 @@ Resources:
             RestApiId: !Ref CorsApi
             Path: /userverification
             Method: get
+  
+  #Details Functions
   CartFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Details
       Handler: cart.CartLambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -253,7 +242,7 @@ Resources:
   WishlistFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Details
       Handler: wishlist.WishlistLambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -280,7 +269,7 @@ Resources:
   OrdersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Details
       Handler: orders.OrdersLambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -307,7 +296,7 @@ Resources:
   AddressFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
+      CodeUri: functions/Details
       Handler: address.AddressLambda
       Runtime: nodejs18.x
       MemorySize: 128
@@ -331,11 +320,79 @@ Resources:
             RestApiId: !Ref CorsApi
             Path: /address
             Method: get
-  createAuthTableFunction:
+
+  #Products Functions
+  GetAllProductsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
-      Handler: hello.hellolambda3
+      CodeUri: functions/Products
+      Handler: GetProducts.GetProductsLambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        GetProducts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /products
+            Method: get
+        GetProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /products/{id}
+            Method: get
+  GetProductsForCategoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/Products
+      Handler: GetProductsForCategory.GetProductsForCategoryLambda
+      Runtime: nodejs18.x
+      Policies: 
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+      Layers:
+        - !Ref ModulesLayer     
+      Events:
+        GetProductsForCategory:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /category/{name}
+            Method: get
+  CreateProductsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/Products
+      Handler: CreateProducts.CreateProductLambda
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+        - S3CrudPolicy:
+            BucketName: 'learning-commers-products'
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /create
+            Method: post
+  
+  #All Users UserDetails
+  allusers:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/Local
+      Handler: hello.allusers
       Runtime: nodejs18.x
       MemorySize: 128
       Policies:
@@ -347,16 +404,19 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /createtable
+            RestApiId: !Ref CorsApi
+            Path: /users
             Method: get
-  createUserDetailsTableFunction:
+  allusersdetails:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions
-      Handler: hello.hellolambda4
+      CodeUri: functions/Local
+      Handler: hello.alluserdetails
       Runtime: nodejs18.x
       MemorySize: 128
       Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
         - DynamoDBCrudPolicy:
             TableName: !Ref UserDetailsTable
       Layers:
@@ -365,8 +425,65 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /createuserdetailstable
+            RestApiId: !Ref CorsApi
+            Path: /usersdetails
             Method: get
+
+  #local Table Creation functions
+  # createAuthTableFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: functions/Local
+  #     Handler: hello.hellolambda3
+  #     Runtime: nodejs18.x
+  #     MemorySize: 128
+  #     Policies:
+  #       - DynamoDBCrudPolicy:
+  #           TableName: !Ref AuthTable
+  #     Layers:
+  #       - !Ref ModulesLayer
+  #     Events:
+  #       ApiEvent:
+  #         Type: Api
+  #         Properties:
+  #           Path: /createtable
+  #           Method: get
+  # createUserDetailsTableFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: functions/Local
+  #     Handler: hello.hellolambda4
+  #     Runtime: nodejs18.x
+  #     MemorySize: 128
+  #     Policies:
+  #       - DynamoDBCrudPolicy:
+  #           TableName: !Ref UserDetailsTable
+  #     Layers:
+  #       - !Ref ModulesLayer
+  #     Events:
+  #       ApiEvent:
+  #         Type: Api
+  #         Properties:
+  #           Path: /createuserdetailstable
+  #           Method: get
+  # createDetailsTableFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: functions/Local
+  #     Handler: hello.hellolambda
+  #     Runtime: nodejs18.x
+  #     MemorySize: 128
+  #     Policies:
+  #       - DynamoDBCrudPolicy:
+  #           TableName: !Ref ProductsTable
+  #     Layers:
+  #       - !Ref ModulesLayer
+  #     Events:
+  #       ApiEvent:
+  #         Type: Api
+  #         Properties:
+  #           Path: /createdetailstable
+  #           Method: get
 
 # Outputs:
 #   ApiGatewayEndpoint:
