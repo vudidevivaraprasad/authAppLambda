@@ -150,7 +150,7 @@ exports.allusers = async (event) => {
 exports.hellolambda = async (event) => {
     const result = await DBConnection.send(
         new CreateTableCommand({
-            TableName:process.env.TableName,
+            TableName:process.env.ProductsTable,
             AttributeDefinitions:[
                 {
                     AttributeName:'id',
