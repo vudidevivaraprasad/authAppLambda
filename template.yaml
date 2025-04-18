@@ -6,8 +6,8 @@ Globals:
     Cors:
       AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
       AllowHeaders: "'Content-Type,Authorization'"
-      # AllowOrigin: "'http://127.0.0.1:4200'"
-      AllowOrigin: "'https://ecommers-frontend-nine.vercel.app'"
+      AllowOrigin: "'http://127.0.0.1:4200'"
+      # AllowOrigin: "'https://ecommers-frontend-nine.vercel.app'"
       AllowCredentials: true
   Function:
     Timeout: 30
@@ -27,8 +27,8 @@ Resources:
       Name: "CorsApi"
       StageName: "Prod"
       Cors: 
-        # AllowOrigin: "'http://127.0.0.1:4200'"
-        AllowOrigin: "'https://ecommers-frontend-nine.vercel.app'"
+        AllowOrigin: "'http://127.0.0.1:4200'"
+        # AllowOrigin: "'https://ecommers-frontend-nine.vercel.app'"
         AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
         AllowHeaders: "'Content-Type,Authorization'"
         AllowCredentials: true
@@ -212,6 +212,27 @@ Resources:
             Method: get
   
   #Details Functions
+  UserDetailsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/Details
+      Handler: userdetails.UserDetails
+      Runtime: nodejs18.x
+      MemorySize: 128
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserDetailsTable
+      Layers:
+        - !Ref ModulesLayer
+      Events:
+        GetUserDetails:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CorsApi
+            Path: /userdetails
+            Method: get
   CartFunction:
     Type: AWS::Serverless::Function
     Properties:

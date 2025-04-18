@@ -42,12 +42,12 @@ exports.AddressLambda = async (event) => {
         }
         if(result.Item){
             if(task === 'ADD'){
-                const {name,mobilenumber,pincode,state,city,village,area} = JSON.parse(event.body)
+                const {id,name,mobilenumber,pincode,state,city,village,area} = JSON.parse(event.body)
                 if(!name || !mobilenumber || !pincode || !state || !city || !village || !area){
                     console.log('no address or task')
                     return corsheaders(unauthorized)
                 }
-                const address = {id:Date.now(),name,mobilenumber,pincode,state,city,village,area}
+                const address = {id,name,mobilenumber,pincode,state,city,village,area}
                 await DBConnection.send(
                     new UpdateCommand({
                         TableName: process.env.UserDetailsTable,
