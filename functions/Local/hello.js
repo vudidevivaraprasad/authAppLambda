@@ -60,6 +60,34 @@ exports.hellolambda4 = async (event,context) => {
         body:JSON.stringify({message:"table created"})
     }
 }
+exports.hellolambda5 = async (event,context) => {
+    const result = await DBConnection.send(
+        new CreateTableCommand({
+            TableName:process.env.OrdersTable,
+            AttributeDefinitions:[
+                {
+                    AttributeName:'order_id',
+                    AttributeType:'S'
+                }
+            ],
+            KeySchema:[
+                {
+                    AttributeName:'order_id',
+                    KeyType:'HASH'
+                }
+            ],
+            ProvisionedThroughput:{
+                ReadCapacityUnits:1,
+                WriteCapacityUnits:1
+            }
+        })
+    )
+    console.log('result',result)
+    return {
+        statusCode:200,
+        body:JSON.stringify({message:"table created"})
+    }
+}
 exports.alluserdetails = async (event,context) => {
     const cookie = event.headers?.Cookie
     if (event.httpMethod === 'OPTIONS'){
