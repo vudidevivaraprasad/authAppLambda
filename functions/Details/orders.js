@@ -59,31 +59,39 @@ exports.OrdersLambda = async (event) => {
                     quantity:quantity[index]
                 })
             })
-            const orderinfo = {
-                order_id:v4(),
-                products:productinfo,
-                Date:Date.now(),
-                status:'pending'
-            }
-            const orderresult = await DBConnection.send(
-                new PutCommand({
-                    TableName: process.env.OrdersTable,
-                    Item:orderinfo
-                })
-            )
-            console.log('order table result',orderresult)
-            const userresult = await DBConnection.send(
-                new UpdateCommand({
-                    TableName: process.env.UserDetailsTable,
-                    Key:{user_id:result.Item.user_id},
-                    UpdateExpression: "SET orders = list_append(orders,:v)",
-                    ExpressionAttributeValues: {
-                        ":v":[orderinfo.order_id]
-                    },
-                    ReturnValues: "UPDATED_NEW"
-                })
-            )
-            console.log('user details result',userresult)
+
+            let userPromises = []
+            let ordersPromises = []
+
+            productinfo.map(product => {
+                const orderinfo = {
+                    order_id:v4(),
+                    product:product,
+                    Date:Date.now(),
+                    address:address,
+                    status:'pending'
+                }
+                userPromises.push(DBConnection.send(
+                    new PutCommand({
+                        TableName: process.env.OrdersTable,
+                        Item:orderinfo
+                    })
+                ))
+                ordersPromises.push(DBConnection.send(
+                    new UpdateCommand({
+                        TableName: process.env.UserDetailsTable,
+                        Key:{user_id:result.Item.user_id},
+                        UpdateExpression: "SET orders = list_append(orders,:v)",
+                        ExpressionAttributeValues: {
+                            ":v":[orderinfo.order_id]
+                        },
+                        ReturnValues: "UPDATED_NEW"
+                    })
+                ))
+            })
+            // console.log('user details result',userresult)
+            const userpromisesresult = await Promise.all(userPromises)
+            const oederpromisesresult = await Promise.all(ordersPromises)
             return corsheaders({
                 statusCode:200,
                 body: JSON.stringify({message:'order added successfully'})
