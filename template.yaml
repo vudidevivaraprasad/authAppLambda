@@ -6,8 +6,8 @@ Globals:
     Cors:
       AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
       AllowHeaders: "'Content-Type,Authorization'"
-      AllowOrigin: "'http://127.0.0.1:4200'"
-      # AllowOrigin: "'https://lambda-frontend-olive.vercel.app'"
+      # AllowOrigin: "'http://127.0.0.1:4200'"
+      AllowOrigin: "'https://lambda-frontend-olive.vercel.app'"
       AllowCredentials: true
   Function:
     Timeout: 30
@@ -28,8 +28,8 @@ Resources:
       Name: "CorsApi"
       StageName: "Prod"
       Cors: 
-        AllowOrigin: "'http://127.0.0.1:4200'"
-        # AllowOrigin: "'https://lambda-frontend-olive.vercel.app'"
+        # AllowOrigin: "'http://127.0.0.1:4200'"
+        AllowOrigin: "'https://lambda-frontend-olive.vercel.app'"
         AllowMethods: "'OPTIONS,GET,POST,PUT,DELETE'"
         AllowHeaders: "'Content-Type,Authorization'"
         AllowCredentials: true
@@ -489,78 +489,78 @@ Resources:
 
 
   #local Table Creation functions
-  createAuthTableFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/Local
-      Handler: hello.hellolambda3
-      Runtime: nodejs18.x
-      MemorySize: 128
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuthTable
-      Layers:
-        - !Ref ModulesLayer
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /createtable
-            Method: get
-  createUserDetailsTableFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/Local
-      Handler: hello.hellolambda4
-      Runtime: nodejs18.x
-      MemorySize: 128
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserDetailsTable
-      Layers:
-        - !Ref ModulesLayer
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /createuserdetailstable
-            Method: get
-  createDetailsTableFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/Local
-      Handler: hello.hellolambda
-      Runtime: nodejs18.x
-      MemorySize: 128
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ProductsTable
-      Layers:
-        - !Ref ModulesLayer
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /createdetailstable
-            Method: get
-  createOrdersTableFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/Local
-      Handler: hello.hellolambda5
-      Runtime: nodejs18.x
-      MemorySize: 128
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref OrdersTable
-      Layers:
-        - !Ref ModulesLayer
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /createorderstable
-            Method: get
+  # createAuthTableFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: functions/Local
+  #     Handler: hello.hellolambda3
+  #     Runtime: nodejs18.x
+  #     MemorySize: 128
+  #     Policies:
+  #       - DynamoDBCrudPolicy:
+  #           TableName: !Ref AuthTable
+  #     Layers:
+  #       - !Ref ModulesLayer
+  #     Events:
+  #       ApiEvent:
+  #         Type: Api
+  #         Properties:
+  #           Path: /createtable
+  #           Method: get
+  # createUserDetailsTableFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: functions/Local
+  #     Handler: hello.hellolambda4
+  #     Runtime: nodejs18.x
+  #     MemorySize: 128
+  #     Policies:
+  #       - DynamoDBCrudPolicy:
+  #           TableName: !Ref UserDetailsTable
+  #     Layers:
+  #       - !Ref ModulesLayer
+  #     Events:
+  #       ApiEvent:
+  #         Type: Api
+  #         Properties:
+  #           Path: /createuserdetailstable
+  #           Method: get
+  # createDetailsTableFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: functions/Local
+  #     Handler: hello.hellolambda
+  #     Runtime: nodejs18.x
+  #     MemorySize: 128
+  #     Policies:
+  #       - DynamoDBCrudPolicy:
+  #           TableName: !Ref ProductsTable
+  #     Layers:
+  #       - !Ref ModulesLayer
+  #     Events:
+  #       ApiEvent:
+  #         Type: Api
+  #         Properties:
+  #           Path: /createdetailstable
+  #           Method: get
+  # createOrdersTableFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: functions/Local
+  #     Handler: hello.hellolambda5
+  #     Runtime: nodejs18.x
+  #     MemorySize: 128
+  #     Policies:
+  #       - DynamoDBCrudPolicy:
+  #           TableName: !Ref OrdersTable
+  #     Layers:
+  #       - !Ref ModulesLayer
+  #     Events:
+  #       ApiEvent:
+  #         Type: Api
+  #         Properties:
+  #           Path: /createorderstable
+  #           Method: get
 
 # Outputs:
 #   ApiGatewayEndpoint:
